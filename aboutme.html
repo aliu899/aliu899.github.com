@@ -1,35 +1,199 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Aaron Liu - About Me</TITLE>
 
-<head>
-	<!-- add styling to the assets/css folder-->
-	<link rel="stylesheet" type="text/css" href="assets/css/portfolio.css" />
+<style type="text/css">
+<!--
 
-</head>
-
-<body>
-	<div class="body-center">
-	<!-- navbar -->
-	<div class="navbar">
-		<a href="index.html">Home</a>
-		<a href="aboutme.html">About Me</a>
-		<a href="projects.html">Projects</a>
-		<a href="contact.html">Contact</a>
-	</div>
-	<!-- end navbar --> 
-	<br><br>
+#miniflex {
+  width: 60%;
+  float: left;
+  font-size: small; /* could be specified at a higher level */
+  margin: 0 0 0 100px;
+  padding: 0 10px 0 10px;
+  border-bottom: 1px solid #ffa52c;
+  position:relative;
+  z-index:2;
+}
+ 
+#miniflex li {
+  float: left;
+  margin: 0;
+  padding: 0;
+  display: inline;
+  list-style: none;
+  position:relative;
+}
+ 
+#miniflex a:link, #miniflex a:visited {
+  float: left;
+  font-size: 85%;
+  line-height: 20px;
+  font-weight: bold;
+  margin: 0 10px 0 10px;
+  text-decoration: none;
+  color: #ff6f63;
+}
+ 
+#miniflex a.active:link, #miniflex a.active:visited, #miniflex a:hover {
+  border-bottom: 4px solid #696;
+  padding-bottom: 2px;
+  color: #696;
+}
+   
+#animated-tab {
+  position: absolute;
+  z-index: 1;
+  font-size: 85%;
+  line-height: 20px;
+  padding-bottom: 2px;
+  border-bottom: 4px solid #696;
+}
+-->
+</style><script type="text/javascript">	
+ 
+ 
+var miniTab = {
+  currentTab:     0,
+  activeTab:      0,
+  destX:          0,
+  destW:          0,
+  t:              0,
+  b:              0,
+  c:              0,
+  d:              20,
+  animInterval:   null,
+  sliderObj:      null,
+  aHeight:        0,
+   
+  init: function() {
+    if(!document.getElementById || !document.getElementById("miniflex")) return;
+     
+    var ul          = document.getElementById("miniflex");
+    var liArr       = ul.getElementsByTagName("li");
+    var aArr        = ul.getElementsByTagName("a");
+     
+    for(var i = 0, li; li = liArr[i]; i++) {
+      liArr[i].onmouseover = aArr[i].onfocus = function(e) {
+        var pos = 0;
+        var elem = this.nodeName == "LI" ? this : this.parentNode;
+        while(elem.previousSibling) {
+          elem = elem.previousSibling;
+          if(elem.tagName && elem.tagName == "LI") pos++;
+        }
+        miniTab.initSlide(pos);
+      }
+    }
+ 
+    ul.onmouseout = function(e) {
+      miniTab.initSlide(miniTab.currentTab);
+    };
+     
+    for(var i = 0; i < aArr.length; i++) {
+      if(document.location.href.indexOf(aArr[i].href)>=0) {
+        miniTab.activeTab = miniTab.currentTab = i;
+      }
+      aArr[i].style.borderBottom  = "0px";
+      aArr[i].style.paddingBottom = "6px";
+    }
+ 
+    miniTab.slideObj                = ul.parentNode.appendChild(document.createElement("div"));
+    miniTab.slideObj.appendChild(document.createTextNode(String.fromCharCode(160)));
+    miniTab.slideObj.id             = "animated-tab";
+    miniTab.slideObj.style.top      = (ul.offsetTop + liArr[miniTab.activeTab].offsetTop + aArr[miniTab.activeTab].offsetTop) + "px";
+    miniTab.slideObj.style.left     = (ul.offsetLeft + + liArr[miniTab.activeTab].offsetLeft + aArr[miniTab.activeTab].offsetLeft) + "px";
+    miniTab.slideObj.style.width    = aArr[miniTab.activeTab].offsetWidth + "px";
+    miniTab.aHeight                 = ul.offsetTop + liArr[miniTab.activeTab].offsetTop + aArr[miniTab.activeTab].offsetTop;
+     
+    miniTab.initSlide(miniTab.activeTab, true);
+     
+    var intervalMethod = function() { miniTab.slideIt(); }
+    miniTab.animInterval = setInterval(intervalMethod,10);
+  },
+ 
+  cleanUp: function() {
+    clearInterval(miniTab.animInterval);
+    miniTab.animInterval = null;
+  },
+   
+  initSlide: function(pos, force) {
+    if(!force && pos == miniTab.activeTab) return;
+    miniTab.activeTab = pos;
+    miniTab.initAnim();
+  },
+   
+  initAnim: function() {
+    var ul          = document.getElementById("miniflex");
+    var liArr       = ul.getElementsByTagName("li");
+    var aArr        = ul.getElementsByTagName("a");
+    miniTab.destX = parseInt(liArr[miniTab.activeTab].offsetLeft + liArr[miniTab.activeTab].getElementsByTagName("a")[0].offsetLeft + ul.offsetLeft);
+    miniTab.destW = parseInt(liArr[miniTab.activeTab].getElementsByTagName("a")[0].offsetWidth);
+    miniTab.t = 0;
+    miniTab.b = miniTab.slideObj.offsetLeft;
+    miniTab.c = miniTab.destX - miniTab.b;
+    miniTab.bW = miniTab.slideObj.offsetWidth;
+    miniTab.cW = miniTab.destW - miniTab.bW;
+    miniTab.slideObj.style.top = (ul.offsetTop + liArr[miniTab.activeTab].offsetTop + aArr[miniTab.activeTab].offsetTop) + "px";
+  },
+   
+  slideIt:function() {
+    var ul          = document.getElementById("miniflex");
+    var liArr       = ul.getElementsByTagName("li");
+    var aArr        = ul.getElementsByTagName("a");
+     
+    // Has the browser text size changed?
+    if(miniTab.aHeight != ul.offsetTop + liArr[miniTab.activeTab].offsetTop + aArr[miniTab.activeTab].offsetTop) {
+      miniTab.initAnim();
+      miniTab.aHeight = ul.offsetTop + liArr[miniTab.activeTab].offsetTop + aArr[miniTab.activeTab].offsetTop
+    };
+     
+    if(miniTab.t++ < miniTab.d) {
+      var x = miniTab.animate(miniTab.t,miniTab.b,miniTab.c,miniTab.d);
+      var w = miniTab.animate(miniTab.t,miniTab.bW,miniTab.cW,miniTab.d);
+      miniTab.slideObj.style.left = parseInt(x) + "px";
+      miniTab.slideObj.style.width = parseInt(w) + "px";
+    } else {
+      miniTab.slideObj.style.left = miniTab.destX + "px";
+      miniTab.slideObj.style.width = miniTab.destW +"px";
+    }
+  },
+ 
+  animate: function(t,b,c,d) {
+    if ((t/=d/2) < 1) return c/2*t*t + b;
+    return -c/2 * ((--t)*(t-2) - 1) + b;
+  }
+}
+ 
+window.onload = miniTab.init;
+window.onunload = miniTab.cleanUp;
+ 
+</script> 
+</HEAD>
+ 
+<BODY BGCOLOR=#e6e6e6 vlink=#0000ff >
+ 
+<!-- Demonstration -->
+<p style="text-align: center;">
+<ul id="miniflex">
+  <li><a href="index.html">Home</a></li>
+  <li><a href="aboutme.html">About Me</a></li>
+  <li><a href="projects.html">Projects</a></li>
+  <li><a href="contact.html">Contact</a></li>
+</ul>
+</p>
+<br style="clear: both;">
+<br><br><br>
+<center><h2><font face="century gothic"><font color="ffa52c">About Me</font></h2>
 	
-	<h2>About Me</h2>
+	<img id="profile-picture" src="assets/img/me.jpg" width="385" height="441" class="floatright" />
+	<p>Hi my name is Aaron Liu and I am currently a Computer Science major at the University of Illinois at Urbana-Champaign.</p> <p> I am originally from San Jose, CA, but moved to Hong Kong in 2004, where I lived for 9 years.</p> <p>I went to an Australian International School while in Hong Kong.</p> <p>
+I like to play tennis and work out, and I have also learned to snowboard, dive in open water, play golf, rugby and various other sports.</p>
 	
-	<img id="profile-picture" src="assets/img/FirstnameLastname.jpg" width="200" height="300" class="floatright" />
-	<p>Hi my name is Ada Lovelace and I am currently a Computer Science major at the University of Illinois at Urbana-Champaign and originally from England.
-	In high school, I ran track, competed with my robotics team, and often volunteered at my local library. 
-	My hobbies include photography and gaming. Fun fact: I share my name with the world's first programmer.</p>
+	<p>As I have just started at U of I, I hope that through my current and future classes, I will be able to find which specific field in CS that I will pursue in the future. </p>
 	
-	<p>While at UIUC, I am interested in joining ACM SigBot (an ACM special interest group for robotics), WCS (Women in Computer Science), and going on an ASB (Alternative Spring Break) Trip. I look forward to making new friends from all over the world! </p>
-	
-	<p>	Take a second to look at my <a href="assets/Resume-FirstnameLastname.pdf">résumé</a>!</p>
-</body>
+	<p>	Take a second to look at my <a href="assets/Resume_9-8-2013.doc">rÃ©sumÃ©</a>!</p>
+</center></font></body>
 
 </div>
 	
@@ -40,5 +204,5 @@
 
 	<!-- add javascript code to the assets/js folder-->
 	<script type="text/javascript" src="assets/js/portfolio.js"></script>
-</body>
-</html>
+
+</body></div></html>
